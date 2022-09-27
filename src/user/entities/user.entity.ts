@@ -1,4 +1,4 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql'
+import { Field, InputType, Int, ObjectType } from '@nestjs/graphql'
 import {
   Column,
   CreateDateColumn,
@@ -6,22 +6,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { CoreEntity } from '../../common/entities/core.entity'
 
+@InputType('UserInput', { isAbstract: true })
 @ObjectType()
 @Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
-  id: number
-
-  @CreateDateColumn()
-  @Field((type) => Date)
-  createdAt: Date
-
-  @UpdateDateColumn()
-  @Field((type) => Date)
-  updatedAt: Date
-
+export class User extends CoreEntity {
   @Column()
   @Field((type) => String)
   name: string
