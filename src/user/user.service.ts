@@ -8,9 +8,13 @@ import {
   CreateAccountInput,
   CreateAccountOutput,
 } from './dtos/create-account.dto'
+import { EditAccountInput, EditAccountOutput } from './dtos/edit-account.dto'
 import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
 import { User } from './entities/user.entity'
+import * as bcrypt from 'bcrypt'
+import { LogoutOutput } from './dtos/logout.dto'
+import { IContext } from './user.interfaces'
 
 @Injectable()
 export class UserService {
@@ -47,7 +51,7 @@ export class UserService {
   }
   async login(
     { email, password }: LoginInput,
-    ctx: { res: Response; req: Request },
+    { res }: IContext,
   ): Promise<LoginOutput> {
     try {
       const user = await this.users.findOne({ where: { email } })
@@ -72,7 +76,7 @@ export class UserService {
         path: '/',
         maxAge: 1000000,
       }
-      ctx.res.cookie(JWT_TOKEN, token, cookieOptions)
+      res.cookie(JWT_TOKEN, token, cookieOptions)
       return {
         ok: true,
         token,
@@ -85,6 +89,22 @@ export class UserService {
       }
     }
   }
+
+  async logout({ res }: IContext): Promise<LogoutOutput> {
+    try {
+      res.clearCookie(JWT_TOKEN)
+      return {
+        ok: true,
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        ok: false,
+        error: 'logout Service Internal Error',
+      }
+    }
+  }
+
   async getUser(getUserInput: GetUserInput): Promise<GetUserOutput> {
     try {
     } catch (error) {
@@ -114,6 +134,48 @@ export class UserService {
       return {
         ok: false,
         error: 'GetMe Service Internal Error',
+      }
+    }
+  }
+
+  async editAccount(
+    user: User,
+    { id, name, email, password }: EditAccountInput,
+  ): Promise<EditAccountOutput> {
+    try {
+      if (user.id !== id) {
+        return {
+          ok: false,
+          error: '권한이 없습니다.',
+        }
+      }
+      if (name) {
+        user.name = name
+      }
+      if (email) {
+        const existingUser = await this.users.findOne({ where: { email } })
+        if (existingUser) {
+          return {
+            ok: false,
+            error: '이미 사용중인 이메일입니다.',
+          }
+        }
+        user.email = email
+      }
+      if (password) {
+        const hashedPassword = await bcrypt.hash(password, 10)
+        user.password = hashedPassword
+      }
+      await this.users.save(user)
+
+      return {
+        ok: true,
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        ok: false,
+        error: 'editAccount Service Internal Error',
       }
     }
   }
