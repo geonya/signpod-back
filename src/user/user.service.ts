@@ -70,6 +70,7 @@ export class UserService {
         domain: 'localhost',
         secure: false,
         path: '/',
+        maxAge: 1000000,
       }
       ctx.res.cookie(JWT_TOKEN, token, cookieOptions)
       return {
@@ -91,6 +92,28 @@ export class UserService {
       return {
         ok: false,
         error: 'GetUser Service Internal Error',
+      }
+    }
+  }
+
+  async getMe(me: User): Promise<GetUserOutput> {
+    try {
+      const user = await this.users.findOne({ where: { id: me.id } })
+      if (!user) {
+        return {
+          ok: false,
+          error: '권한이 없습니다.',
+        }
+      }
+      return {
+        ok: true,
+        user,
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        ok: false,
+        error: 'GetMe Service Internal Error',
       }
     }
   }

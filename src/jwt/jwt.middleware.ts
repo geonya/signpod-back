@@ -1,5 +1,5 @@
 import { Injectable, NestMiddleware } from '@nestjs/common'
-import { NextFunction, Request } from 'express'
+import { NextFunction, Request, Response } from 'express'
 import { UserService } from '../user/user.service'
 import { JWT_TOKEN } from './jwt.constants'
 import { JwtService } from './jwt.service'
@@ -11,7 +11,7 @@ export class JwtMiddleware implements NestMiddleware {
     private readonly userService: UserService,
   ) {}
 
-  async use(req: Request, next: NextFunction) {
+  async use(req: Request, res: Response, next: NextFunction) {
     if (JWT_TOKEN in req.cookies) {
       const token = req.cookies[JWT_TOKEN]
       try {

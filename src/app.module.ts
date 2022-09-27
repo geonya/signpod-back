@@ -11,8 +11,9 @@ import { TypeOrmModule } from '@nestjs/typeorm'
 import { User } from './user/entities/user.entity'
 import { UserModule } from './user/user.module'
 import { JwtModule } from './jwt/jwt.module'
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module'
 import * as cookieParser from 'cookie-parser'
+import { JwtMiddleware } from './jwt/jwt.middleware'
 
 @Module({
   imports: [
@@ -48,11 +49,12 @@ import * as cookieParser from 'cookie-parser'
     }),
     AuthModule,
   ],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(cookieParser())
+      .apply(cookieParser(), JwtMiddleware)
       .forRoutes({ path: '/graphql', method: RequestMethod.POST })
   }
 }
