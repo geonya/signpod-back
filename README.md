@@ -7,4 +7,8 @@ _220927_
 #### TODO
 
 - [x] nestjs / apollo-server / type orm / setup
-- [ ] posgtres sql db setup
+- [x] posgtres sql db setup
+- [x] Core Entity / DTO
+- [x] User Entity
+- [x] User Service (create account, login)
+- [ ] JWT Setup

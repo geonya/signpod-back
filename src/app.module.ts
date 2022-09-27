@@ -1,11 +1,18 @@
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
-import { Module } from '@nestjs/common'
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { GraphQLModule } from '@nestjs/graphql'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AppService } from './app.service'
 import { User } from './user/entities/user.entity'
 import { UserModule } from './user/user.module'
+import { JwtModule } from './jwt/jwt.module'
+import { AuthModule } from './auth/auth.module';
+import * as cookieParser from 'cookie-parser'
 
 @Module({
   imports: [
@@ -28,9 +35,24 @@ import { UserModule } from './user/user.module'
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
+      context: ({ req, res }) => ({ req, res }),
+      bodyParserConfig: false,
+      cors: {
+        credentials: true,
+        origin: true,
+      },
     }),
     UserModule,
+    JwtModule.forRoot({
+      privateKey: process.env.PRIVATE_KEY,
+    }),
+    AuthModule,
   ],
-  providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(cookieParser())
+      .forRoutes({ path: '/graphql', method: RequestMethod.POST })
+  }
+}

@@ -1,4 +1,5 @@
-import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { Request, Response } from 'express'
 import {
   CreateAccountInput,
   CreateAccountOutput,
@@ -18,8 +19,11 @@ export class UserResolver {
   }
 
   @Mutation((returns) => LoginOutput)
-  login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-    return this.userService.login(loginInput)
+  login(
+    @Args('input') loginInput: LoginInput,
+    @Context() ctx: { res: Response; req: Request },
+  ): Promise<LoginOutput> {
+    return this.userService.login(loginInput, ctx)
   }
 
   @Query((returns) => GetUserOutput)
