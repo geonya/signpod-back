@@ -39,13 +39,9 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
       context: ({ req, res }) => ({ req, res }),
       bodyParserConfig: false,
       cors: {
-        origin:
-          process.env.NODE_ENV === 'production'
-            ? 'https://signpod-web.vercel.app'
-            : true,
-        credentials: 'include',
+        origin: ['https://signpod-web.vercel.app', 'localhost'],
+        credentials: true,
       },
-      csrfPrevention: true,
     }),
     UserModule,
     JwtModule.forRoot({
