@@ -38,8 +38,8 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
       context: ({ req, res }) => ({ req, res }),
       bodyParserConfig: false,
       cors: {
-        credentials: true,
         origin: true,
+        credentials: true,
       },
       csrfPrevention: true,
     }),

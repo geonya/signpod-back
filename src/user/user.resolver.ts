@@ -24,7 +24,7 @@ export class UserResolver {
   }
 
   @Header('Access-Control-Allow-Credentials', 'true')
-  @Header('Access-Control-Allow-Headers', 'Set-Cookie')
+  @Header('Access-Control-Expose-Headers', 'Set-Cookie')
   @Header(
     'Access-Control-Allow-Origin',
     process.env.NODE_ENV === 'production'

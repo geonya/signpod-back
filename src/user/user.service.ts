@@ -71,12 +71,15 @@ export class UserService {
       const token = this.jwtService.sign(user.id)
 
       const cookieOptions: CookieOptions = {
+        path: '/',
         domain:
           process.env.NODE_ENV === 'production'
             ? 'signpod-back-kmjnhjkr4a-du.a.run.app'
             : 'localhost',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : true,
         secure: process.env.NODE_ENV === 'production',
+        maxAge: 604800000,
+        httpOnly: true,
       }
 
       res.cookie(JWT_TOKEN, token, cookieOptions)
