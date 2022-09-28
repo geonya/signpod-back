@@ -32,14 +32,18 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
       synchronize: process.env.NODE_ENV !== 'production',
       entities: [User],
     }),
+
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
       context: ({ req, res }) => ({ req, res }),
       bodyParserConfig: false,
       cors: {
-        origin: true,
-        credentials: true,
+        origin:
+          process.env.NODE_ENV === 'production'
+            ? 'https://signpod-web.vercel.app'
+            : true,
+        credentials: 'include',
       },
       csrfPrevention: true,
     }),

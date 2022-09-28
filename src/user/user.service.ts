@@ -51,7 +51,7 @@ export class UserService {
   }
   async login(
     { email, password }: LoginInput,
-    { req, res }: IContext,
+    { res }: IContext,
   ): Promise<LoginOutput> {
     try {
       const user = await this.users.findOne({ where: { email } })
@@ -72,17 +72,14 @@ export class UserService {
 
       const cookieOptions: CookieOptions = {
         path: '/',
-        domain:
-          process.env.NODE_ENV === 'production'
-            ? 'signpod-back-kmjnhjkr4a-du.a.run.app'
-            : 'localhost',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : true,
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         secure: process.env.NODE_ENV === 'production',
         maxAge: 604800000,
         httpOnly: true,
       }
 
       res.cookie(JWT_TOKEN, token, cookieOptions)
+
       return {
         ok: true,
         token,
