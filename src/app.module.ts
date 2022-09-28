@@ -19,8 +19,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'dev' ? '.env.dev' : '.env.test',
-      ignoreEnvFile: process.env.NODE_ENV === 'prod',
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env' : '.env.dev',
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -29,8 +28,8 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      logging: process.env.NODE_ENV === 'dev',
-      synchronize: process.env.NODE_ENV !== 'prod',
+      logging: process.env.NODE_ENV === 'development',
+      synchronize: process.env.NODE_ENV !== 'production',
       entities: [User],
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -42,6 +41,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
         credentials: true,
         origin: true,
       },
+      csrfPrevention: true,
     }),
     UserModule,
     JwtModule.forRoot({

@@ -12,7 +12,7 @@ import { EditAccountInput, EditAccountOutput } from './dtos/edit-account.dto'
 import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
 import { User } from './entities/user.entity'
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs'
 import { LogoutOutput } from './dtos/logout.dto'
 import { IContext } from './user.interfaces'
 
@@ -51,7 +51,7 @@ export class UserService {
   }
   async login(
     { email, password }: LoginInput,
-    { res }: IContext,
+    { req, res }: IContext,
   ): Promise<LoginOutput> {
     try {
       const user = await this.users.findOne({ where: { email } })
@@ -71,11 +71,14 @@ export class UserService {
       const token = this.jwtService.sign(user.id)
 
       const cookieOptions: CookieOptions = {
-        domain: 'localhost',
-        secure: false,
-        path: '/',
-        maxAge: 1000000,
+        domain:
+          process.env.NODE_ENV === 'production'
+            ? 'signpod-back-kmjnhjkr4a-du.a.run.app'
+            : 'localhost',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : true,
+        secure: process.env.NODE_ENV === 'production',
       }
+
       res.cookie(JWT_TOKEN, token, cookieOptions)
       return {
         ok: true,

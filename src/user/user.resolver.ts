@@ -1,3 +1,4 @@
+import { Header } from '@nestjs/common'
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Request, Response } from 'express'
 import { AuthUser } from '../auth/auth-user.decorator'
@@ -22,6 +23,14 @@ export class UserResolver {
     return this.userService.createAccount(createAccountInput)
   }
 
+  @Header('Access-Control-Allow-Credentials', 'true')
+  @Header('Access-Control-Allow-Headers', 'Set-Cookie')
+  @Header(
+    'Access-Control-Allow-Origin',
+    process.env.NODE_ENV === 'production'
+      ? 'https://signpod-web.vercel.app'
+      : '*',
+  )
   @Mutation((returns) => LoginOutput)
   login(
     @Args('input') loginInput: LoginInput,
