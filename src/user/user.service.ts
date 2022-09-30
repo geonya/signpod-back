@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-import { CookieOptions, Request, Response } from 'express'
 import { Repository } from 'typeorm'
 import { JWT_TOKEN } from '../jwt/jwt.constants'
 import { JwtService } from '../jwt/jwt.service'
@@ -49,10 +48,7 @@ export class UserService {
       }
     }
   }
-  async login(
-    { email, password }: LoginInput,
-    { res }: IContext,
-  ): Promise<LoginOutput> {
+  async login({ email, password }: LoginInput): Promise<LoginOutput> {
     try {
       const user = await this.users.findOne({ where: { email } })
       if (!user) {
@@ -70,15 +66,6 @@ export class UserService {
       }
       const token = this.jwtService.sign(user.id)
 
-      // Cookie setup
-      // const cookieOptions: CookieOptions = {
-      //   path: '/',
-      //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      //   secure: process.env.NODE_ENV === 'production',
-      //   maxAge: 604800000,
-      //   httpOnly: true,
-      // }
-      // res.cookie(JWT_TOKEN, token, cookieOptions)
       return {
         ok: true,
         token,

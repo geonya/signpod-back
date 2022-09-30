@@ -1,6 +1,4 @@
-import { Header, Res } from '@nestjs/common'
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
-import { Request, Response } from 'express'
 import { AuthUser } from '../auth/auth-user.decorator'
 import {
   CreateAccountInput,
@@ -24,11 +22,8 @@ export class UserResolver {
   }
 
   @Mutation((returns) => LoginOutput)
-  login(
-    @Args('input') loginInput: LoginInput,
-    @Context() ctx: IContext,
-  ): Promise<LoginOutput> {
-    return this.userService.login(loginInput, ctx)
+  login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
+    return this.userService.login(loginInput)
   }
 
   @Mutation((returns) => EditAccountOutput)
