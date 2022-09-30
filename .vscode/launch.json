@@ -1,0 +1,62 @@
+{
+  "configurations": [
+    {
+      "name": "Cloud Run: Run/Debug Locally",
+      "type": "cloudcode.cloudrun",
+      "request": "launch",
+      "build": {
+        "docker": {
+          "path": "Dockerfile"
+        }
+      },
+      "image": "signpod-back",
+      "service": {
+        "name": "signpod-back",
+        "containerPort": 8080,
+        "env": [
+          {
+            "name": "PORT=8080",
+            "value": ""
+          },
+          {
+            "name": "DB_HOST=34.64.234.89",
+            "value": ""
+          },
+          {
+            "name": "DB_PORT=5432",
+            "value": ""
+          },
+          {
+            "name": "DB_USERNAME=postgres",
+            "value": ""
+          },
+          {
+            "name": "DB_PASSWORD=han8410",
+            "value": ""
+          },
+          {
+            "name": "DB_DATABASE=postgres",
+            "value": ""
+          },
+          {
+            "name": "PRIVATE_KEY=9A3A246C8F18D",
+            "value": ""
+          }
+        ],
+        "cloudSqlInstances": [
+          "striking-canyon-363801:asia-northeast3:signpod-postgres-sql"
+        ],
+        "resources": {
+          "limits": {
+            "memory": "256Mi"
+          }
+        }
+      },
+      "target": {
+        "minikube": {}
+      },
+      "watch": true,
+      "externalPortForward": 8080
+    }
+  ]
+}
