@@ -70,16 +70,15 @@ export class UserService {
       }
       const token = this.jwtService.sign(user.id)
 
-      const cookieOptions: CookieOptions = {
-        path: '/',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        secure: process.env.NODE_ENV === 'production',
-        maxAge: 604800000,
-        httpOnly: true,
-      }
-
-      res.cookie(JWT_TOKEN, token, cookieOptions)
-
+      // Cookie setup
+      // const cookieOptions: CookieOptions = {
+      //   path: '/',
+      //   sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      //   secure: process.env.NODE_ENV === 'production',
+      //   maxAge: 604800000,
+      //   httpOnly: true,
+      // }
+      // res.cookie(JWT_TOKEN, token, cookieOptions)
       return {
         ok: true,
         token,

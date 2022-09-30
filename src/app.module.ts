@@ -37,9 +37,10 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
       driver: ApolloDriver,
       autoSchemaFile: true,
       context: ({ req, res }) => ({ req, res }),
+      csrfPrevention: true,
       bodyParserConfig: false,
       cors: {
-        origin: ['https://signpod-web.vercel.app', 'localhost'],
+        origin: true,
         credentials: true,
       },
     }),
