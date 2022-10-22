@@ -1,4 +1,4 @@
-import { Field, InputType, Int, ObjectType } from '@nestjs/graphql'
+import { Field, InputType, ObjectType } from '@nestjs/graphql'
 import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import * as bcrypt from 'bcryptjs'
@@ -20,6 +20,10 @@ export class User extends CoreEntity {
   @Column()
   @Field((type) => String)
   password: string
+
+  @Column({ nullable: true })
+  @Field((type) => String, { nullable: true })
+  avatar: string
 
   @Field((type) => [Work], { nullable: true })
   @OneToMany((type) => Work, (work) => work.creator, {

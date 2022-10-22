@@ -14,7 +14,8 @@ import { JwtModule } from './jwt/jwt.module'
 import { AuthModule } from './auth/auth.module'
 import * as cookieParser from 'cookie-parser'
 import { JwtMiddleware } from './jwt/jwt.middleware'
-import { WorkModule } from './work/work.module';
+import { WorkModule } from './work/work.module'
+import { Work } from './work/entities/work.entity'
 
 @Module({
   imports: [
@@ -31,7 +32,7 @@ import { WorkModule } from './work/work.module';
       database: process.env.DB_DATABASE,
       logging: process.env.NODE_ENV === 'development',
       synchronize: process.env.NODE_ENV !== 'production',
-      entities: [User],
+      entities: [User, Work],
     }),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -46,11 +47,11 @@ import { WorkModule } from './work/work.module';
       },
     }),
     UserModule,
+    AuthModule,
+    WorkModule,
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
     }),
-    AuthModule,
-    WorkModule,
   ],
   providers: [],
 })

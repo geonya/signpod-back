@@ -1,6 +1,6 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql'
 import { IsString, Length } from 'class-validator'
-import { Column, Entity, ManyToOne } from 'typeorm'
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import { User } from '../../user/entities/user.entity'
 
@@ -23,4 +23,7 @@ export class Work extends CoreEntity {
   @ManyToOne((type) => User, (user) => user.works, { onDelete: 'CASCADE' })
   @Field((type) => User)
   creator: User
+
+  @RelationId((work: Work) => work.creator)
+  creatorId: number
 }

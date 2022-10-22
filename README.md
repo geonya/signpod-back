@@ -11,4 +11,5 @@ _220927_
 - [x] Core Entity / DTO
 - [x] User Entity
 - [x] User Service (create account, login)
-- [ ] JWT Setup
+- [x] Work 모듈 만들기
+- [ ] Work resolver / service 만들기
