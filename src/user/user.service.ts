@@ -14,6 +14,7 @@ import { User } from './entities/user.entity'
 import * as bcrypt from 'bcryptjs'
 import { LogoutOutput } from './dtos/logout.dto'
 import { IContext } from './user.interfaces'
+import { MeInput, MeOutput } from './dtos/me.dto'
 
 @Injectable()
 export class UserService {
@@ -37,14 +38,23 @@ export class UserService {
       }
       const user = this.users.create({ name, password, email })
       await this.users.save(user)
-      return {
-        ok: true,
+      const { token } = await this.login({ email, password })
+      if (token) {
+        return {
+          ok: true,
+          token,
+        }
+      } else {
+        return {
+          ok: false,
+          error: '토큰 오류',
+        }
       }
     } catch (error) {
       console.error(error)
       return {
         ok: false,
-        error: '오류가 발생했습니다.',
+        error: '내부 오류',
       }
     }
   }
@@ -105,18 +115,27 @@ export class UserService {
     }
   }
 
-  async getMe(me: User): Promise<GetUserOutput> {
+  async me(meInput: MeInput): Promise<MeOutput> {
     try {
-      const user = await this.users.findOne({ where: { id: me.id } })
-      if (!user) {
+      const { token } = meInput
+      const decoded = this.jwtService.verify(token)
+      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+        const user = await this.users.findOne({ where: { id: decoded['id'] } })
+        if (!user) {
+          return {
+            ok: false,
+            error: '권한이 없습니다.',
+          }
+        }
+        return {
+          ok: true,
+          user,
+        }
+      } else {
         return {
           ok: false,
-          error: '권한이 없습니다.',
+          error: '유효하지 않은 토큰',
         }
-      }
-      return {
-        ok: true,
-        user,
       }
     } catch (error) {
       console.error(error)

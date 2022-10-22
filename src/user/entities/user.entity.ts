@@ -1,8 +1,9 @@
 import { Field, InputType, Int, ObjectType } from '@nestjs/graphql'
-import { BeforeInsert, Column, Entity } from 'typeorm'
+import { BeforeInsert, Column, Entity, OneToMany } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import * as bcrypt from 'bcryptjs'
 import { InternalServerErrorException } from '@nestjs/common'
+import { Work } from '../../work/entities/work.entity'
 
 @InputType('UserInput', { isAbstract: true })
 @ObjectType()
@@ -19,6 +20,13 @@ export class User extends CoreEntity {
   @Column()
   @Field((type) => String)
   password: string
+
+  @Field((type) => [Work], { nullable: true })
+  @OneToMany((type) => Work, (work) => work.creator, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  works?: Work[]
 
   async checkPassword(password: string): Promise<boolean> {
     try {

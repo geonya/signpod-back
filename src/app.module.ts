@@ -14,12 +14,13 @@ import { JwtModule } from './jwt/jwt.module'
 import { AuthModule } from './auth/auth.module'
 import * as cookieParser from 'cookie-parser'
 import { JwtMiddleware } from './jwt/jwt.middleware'
+import { WorkModule } from './work/work.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: process.env.NODE_ENV === 'production' ? '.env' : '.env.dev',
+      envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -38,6 +39,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
       autoSchemaFile: true,
       context: ({ req, res }) => ({ req, res }),
       bodyParserConfig: false,
+      csrfPrevention: true,
       cors: {
         origin: true,
         credentials: true,
@@ -48,6 +50,7 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
       privateKey: process.env.PRIVATE_KEY,
     }),
     AuthModule,
+    WorkModule,
   ],
   providers: [],
 })
