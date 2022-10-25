@@ -16,12 +16,15 @@ import * as cookieParser from 'cookie-parser'
 import { JwtMiddleware } from './jwt/jwt.middleware'
 import { WorkModule } from './work/work.module'
 import { Work } from './work/entities/work.entity'
+import { StorageModule } from './storage/storage.module'
+import storageConfig from './storage/storage-config'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: process.env.NODE_ENV === 'development' ? '.env.dev' : '.env',
+      load: [storageConfig],
     }),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -40,7 +43,6 @@ import { Work } from './work/entities/work.entity'
       autoSchemaFile: true,
       context: ({ req, res }) => ({ req, res }),
       bodyParserConfig: false,
-      csrfPrevention: true,
       cors: {
         origin: true,
         credentials: true,
@@ -52,6 +54,7 @@ import { Work } from './work/entities/work.entity'
     JwtModule.forRoot({
       privateKey: process.env.PRIVATE_KEY,
     }),
+    StorageModule,
   ],
   providers: [],
 })

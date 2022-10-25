@@ -4,6 +4,15 @@ import { Column, Entity, ManyToOne, RelationId } from 'typeorm'
 import { CoreEntity } from '../../common/entities/core.entity'
 import { User } from '../../user/entities/user.entity'
 
+@ObjectType()
+export class Photo extends CoreEntity {
+  @Field((type) => String)
+  url: string
+
+  @Field((type) => String, { nullable: true })
+  alt?: string
+}
+
 @InputType('WorkInput', { isAbstract: true })
 @ObjectType()
 @Entity()
@@ -26,4 +35,7 @@ export class Work extends CoreEntity {
 
   @RelationId((work: Work) => work.creator)
   creatorId: number
+
+  @Field((type) => [Photo], { nullable: true })
+  photos?: Photo[]
 }
