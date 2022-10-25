@@ -12,4 +12,7 @@ _220927_
 - [x] User Entity
 - [x] User Service (create account, login)
 - [x] Work 모듈 만들기
-- [ ] Work resolver / service 만들기
+- [x] Work resolver / service 만들기
+- [x] Work Photos Upload in GCP Storage
+  - [ ] return file url and save in work object
+- [ ] Auth : Work Creator

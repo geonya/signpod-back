@@ -17,7 +17,9 @@ import { JwtMiddleware } from './jwt/jwt.middleware'
 import { WorkModule } from './work/work.module'
 import { Work } from './work/entities/work.entity'
 import { StorageModule } from './storage/storage.module'
+import { PhotoModule } from './photo/photo.module'
 import storageConfig from './storage/storage-config'
+import { Photo } from './photo/entities/photo.entity'
 
 @Module({
   imports: [
@@ -35,7 +37,7 @@ import storageConfig from './storage/storage-config'
       database: process.env.DB_DATABASE,
       logging: process.env.NODE_ENV === 'development',
       synchronize: process.env.NODE_ENV !== 'production',
-      entities: [User, Work],
+      entities: [User, Work, Photo],
     }),
 
     GraphQLModule.forRoot<ApolloDriverConfig>({
@@ -55,6 +57,7 @@ import storageConfig from './storage/storage-config'
       privateKey: process.env.PRIVATE_KEY,
     }),
     StorageModule,
+    PhotoModule,
   ],
   providers: [],
 })

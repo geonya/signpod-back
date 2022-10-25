@@ -29,7 +29,6 @@ export class StorageService {
     createReadStream: FileUpload['createReadStream'],
     filename: string,
   ) {
-    // step 1 - upload the file to Google Cloud Storage
     return new Promise((resolves, rejects) =>
       createReadStream()
         .pipe(
@@ -38,9 +37,13 @@ export class StorageService {
             gzip: true,
           }),
         )
-        .on('error', (err: any) => rejects(err)) // reject on error
-        .on('finish', resolves),
-    ) // resolve on finish
+        .on('error', (err: any) => rejects(err))
+        .on('finish', () =>
+          resolves(
+            `https://storage.cloud.google.com/${this.config.bucketId}/${filename}`,
+          ),
+        ),
+    )
   }
 
   async delete(path: string) {

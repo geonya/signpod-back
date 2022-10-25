@@ -1,17 +1,7 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql'
 import { IsString } from 'class-validator'
-import { GraphQLUpload } from 'graphql-upload-minimal'
+import { FileUpload, GraphQLUpload } from 'graphql-upload-minimal'
 import { CoreOutput } from '../../common/dtos/output.dto'
-
-import { Stream } from 'stream'
-
-export interface FileUpload {
-  path: string
-  filename: string
-  mimetype: string
-  encoding: string
-  createReadStream: () => Stream
-}
 
 @InputType('CreateWorkInput')
 export class CreateWorkInput {
@@ -25,7 +15,7 @@ export class CreateWorkInput {
 
   @Field((type) => String)
   @IsString()
-  cateogry: string
+  category: string
 }
 
 @ObjectType()
