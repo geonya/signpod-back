@@ -1,0 +1,36 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: gce-ingress
+  annotations:
+    kubernetes.io/ingress.class: 'gce'
+    kubernetes.io/ingress.global-static-ip-name: signpod-ip
+    networking.gke.io/managed-certificates: managed-cert
+    kubernetes.io/ingress.allow-http: 'false'
+spec:
+  defaultBackend:
+    service:
+      name: signpod-web
+      port:
+        number: 3000
+  rules:
+    - host: signpod.app
+      http:
+        paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: signpod-web
+                port:
+                  number: 3000
+    - host: api.signpod.app
+      http:
+        paths:
+          - path: /*
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: signpod-back
+                port:
+                  number: 4000

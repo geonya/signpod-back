@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signpod-back
+spec:
+  selector:
+    matchLabels:
+      app: signpod-back
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: signpod-back
+    spec:
+      containers:
+        - name: signpod-back
+          image: geonya/signpod-back
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 4000
+          readinessProbe:
+            initialDelaySeconds: 300
+            periodSeconds: 30
+            httpGet:
+              path: /health
+              port: 4000

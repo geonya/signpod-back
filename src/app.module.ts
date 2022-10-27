@@ -20,6 +20,7 @@ import { StorageModule } from './storage/storage.module'
 import { PhotoModule } from './photo/photo.module'
 import storageConfig from './storage/storage-config'
 import { Photo } from './photo/entities/photo.entity'
+import { HealthModule } from './health/health.module'
 
 @Module({
   imports: [
@@ -45,8 +46,10 @@ import { Photo } from './photo/entities/photo.entity'
       autoSchemaFile: true,
       context: ({ req, res }) => ({ req, res }),
       bodyParserConfig: false,
+      cache: 'bounded',
+      persistedQueries: false,
       cors: {
-        origin: true,
+        origin: 'https://signpod.app',
         credentials: true,
       },
     }),
@@ -58,6 +61,7 @@ import { Photo } from './photo/entities/photo.entity'
     }),
     StorageModule,
     PhotoModule,
+    HealthModule,
   ],
   providers: [],
 })

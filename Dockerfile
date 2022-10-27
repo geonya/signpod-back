@@ -1,6 +1,6 @@
-FROM node:16-alpine As development
+FROM node:18-alpine As development
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 
@@ -10,20 +10,20 @@ COPY . .
 
 RUN npm run build
 
-FROM node:16-alpine as production
+FROM node:18-alpine as production
 
 ARG NODE_ENV=production
 ENV NODE_ENV=${NODE_ENV}
 
-WORKDIR /app
+WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm ci
+RUN npm ci --only=production
 
-COPY --from=development /app/package*.json ./
-COPY --from=development /app/dist ./dist
-COPY --from=development /app/.env .
+COPY . .
+
+COPY --from=development /usr/src/app/dist ./dist
 
 CMD ["node", "dist/main"]
 
