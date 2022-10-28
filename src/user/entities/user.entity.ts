@@ -4,6 +4,7 @@ import { CoreEntity } from '../../common/entities/core.entity'
 import * as bcrypt from 'bcryptjs'
 import { InternalServerErrorException } from '@nestjs/common'
 import { Work } from '../../work/entities/work.entity'
+import { Exclude } from 'class-transformer'
 
 @InputType('UserInput', { isAbstract: true })
 @ObjectType()
@@ -23,7 +24,12 @@ export class User extends CoreEntity {
 
   @Column({ nullable: true })
   @Field((type) => String, { nullable: true })
-  avatar: string
+  avatar?: string
+
+  @Column({ nullable: true })
+  @Exclude()
+  @Field((type) => String, { nullable: true })
+  refreshToken?: string
 
   @Field((type) => [Work], { nullable: true })
   @OneToMany((type) => Work, (work) => work.creator, {

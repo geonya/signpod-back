@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
-import { JWT_TOKEN } from '../jwt/jwt.constants'
 import { JwtService } from '../jwt/jwt.service'
 import {
   CreateAccountInput,
@@ -12,9 +11,15 @@ import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
 import { User } from './entities/user.entity'
 import * as bcrypt from 'bcryptjs'
-import { LogoutOutput } from './dtos/logout.dto'
+import { LogoutInput, LogoutOutput } from './dtos/logout.dto'
 import { IContext } from './user.interfaces'
 import { MeInput, MeOutput } from './dtos/me.dto'
+import {
+  ACCESS_TOKEN,
+  JWT_TOKEN,
+  REFRESH_TOKEN,
+} from '../common/common.constants'
+import { Response, Request } from 'express'
 
 @Injectable()
 export class UserService {
@@ -23,11 +28,10 @@ export class UserService {
     private readonly users: Repository<User>,
     private readonly jwtService: JwtService,
   ) {}
-  async createAccount({
-    name,
-    password,
-    email,
-  }: CreateAccountInput): Promise<CreateAccountOutput> {
+  async createAccount(
+    { name, password, email }: CreateAccountInput,
+    ctx: { res: Response; req: Request },
+  ): Promise<CreateAccountOutput> {
     try {
       const existingUser = await this.users.findOne({ where: { email } })
       if (existingUser) {
@@ -38,7 +42,7 @@ export class UserService {
       }
       const user = this.users.create({ name, password, email })
       await this.users.save(user)
-      const { token } = await this.login({ email, password })
+      const { token } = await this.login({ email, password }, ctx)
       if (token) {
         return {
           ok: true,
@@ -58,7 +62,10 @@ export class UserService {
       }
     }
   }
-  async login({ email, password }: LoginInput): Promise<LoginOutput> {
+  async login(
+    { email, password }: LoginInput,
+    { res, req }: { res: Response; req: Request },
+  ): Promise<LoginOutput> {
     try {
       const user = await this.users.findOne({ where: { email } })
       if (!user) {
@@ -74,11 +81,28 @@ export class UserService {
           error: '비밀번호가 틀렸습니다.',
         }
       }
-      const token = this.jwtService.sign(user.id)
+
+      // cookie
+      const accessToken = this.jwtService.signAccessToken(user.id)
+      const refreshToken = this.jwtService.signRefreshToken(user.id)
+
+      const cookieOptions = {
+        domain:
+          process.env.NODE_ENV === 'production' ? '.signpod.app' : 'localhost',
+        secure: process.env.NODE_ENV === 'production' ? true : false,
+        path: '/',
+        httpOnly: true,
+      }
+
+      res.cookie(ACCESS_TOKEN, accessToken, cookieOptions)
+      res.cookie(REFRESH_TOKEN, refreshToken, cookieOptions)
+
+      user.refreshToken = refreshToken
+      await this.users.save(user)
 
       return {
         ok: true,
-        token,
+        token: accessToken,
       }
     } catch (error) {
       console.error(error)
@@ -89,9 +113,19 @@ export class UserService {
     }
   }
 
-  async logout({ res }: IContext): Promise<LogoutOutput> {
+  async updateRefreshToken(userId: number, token: string): Promise<void> {
+    const user = await this.users.findOne({ where: { id: userId } })
+    user.refreshToken = token
+    await this.users.save(user)
+  }
+
+  async logout({ id }: LogoutInput, { res }: IContext): Promise<LogoutOutput> {
     try {
-      res.clearCookie(JWT_TOKEN)
+      res.clearCookie(ACCESS_TOKEN)
+      res.clearCookie(REFRESH_TOKEN)
+      const user = await this.users.findOne({ where: { id } })
+      user.refreshToken = null
+      await this.users.save(user)
       return {
         ok: true,
       }
@@ -116,33 +150,37 @@ export class UserService {
   }
 
   async me(meInput: MeInput): Promise<MeOutput> {
-    try {
-      const { token } = meInput
-      const decoded = this.jwtService.verify(token)
-      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-        const user = await this.users.findOne({ where: { id: decoded['id'] } })
-        if (!user) {
-          return {
-            ok: false,
-            error: '권한이 없습니다.',
-          }
-        }
-        return {
-          ok: true,
-          user,
-        }
-      } else {
-        return {
-          ok: false,
-          error: '유효하지 않은 토큰',
-        }
-      }
-    } catch (error) {
-      console.error(error)
-      return {
-        ok: false,
-        error: 'GetMe Service Internal Error',
-      }
+    // try {
+    //   const { token } = meInput
+    //   const decoded = this.jwtService.signAccessVerify(token)
+    //   if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+    //     const user = await this.users.findOne({ where: { id: decoded['id'] } })
+    //     if (!user) {
+    //       return {
+    //         ok: false,
+    //         error: '권한이 없습니다.',
+    //       }
+    //     }
+    //     return {
+    //       ok: true,
+    //       user,
+    //     }
+    //   } else {
+    //     return {
+    //       ok: false,
+    //       error: '유효하지 않은 토큰',
+    //     }
+    //   }
+    // } catch (error) {
+    //   console.error(error)
+    //   return {
+    //     ok: false,
+    //     error: 'GetMe Service Internal Error',
+    //   }
+    // }
+    return {
+      ok: false,
+      error: '이거 지워야 댐',
     }
   }
 

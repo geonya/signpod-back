@@ -1,4 +1,5 @@
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
+import { Request, Response } from 'express'
 import { AuthUser } from '../auth/auth-user.decorator'
 import {
   CreateAccountInput,
@@ -7,7 +8,7 @@ import {
 import { EditAccountInput, EditAccountOutput } from './dtos/edit-account.dto'
 import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
-import { LogoutOutput } from './dtos/logout.dto'
+import { LogoutInput, LogoutOutput } from './dtos/logout.dto'
 import { MeInput, MeOutput } from './dtos/me.dto'
 import { User } from './entities/user.entity'
 import { IContext } from './user.interfaces'
@@ -18,13 +19,19 @@ export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
   @Mutation((returns) => CreateAccountOutput)
-  createAccount(@Args('input') createAccountInput: CreateAccountInput) {
-    return this.userService.createAccount(createAccountInput)
+  createAccount(
+    @Args('input') createAccountInput: CreateAccountInput,
+    @Context() ctx: { res: Response; req: Request },
+  ) {
+    return this.userService.createAccount(createAccountInput, ctx)
   }
 
   @Mutation((returns) => LoginOutput)
-  login(@Args('input') loginInput: LoginInput): Promise<LoginOutput> {
-    return this.userService.login(loginInput)
+  login(
+    @Args('input') loginInput: LoginInput,
+    @Context() ctx: { res: Response; req: Request },
+  ): Promise<LoginOutput> {
+    return this.userService.login(loginInput, ctx)
   }
 
   @Mutation((returns) => EditAccountOutput)
@@ -36,8 +43,11 @@ export class UserResolver {
   }
 
   @Mutation((returns) => LogoutOutput)
-  logout(@Context() ctx: IContext): Promise<LogoutOutput> {
-    return this.userService.logout(ctx)
+  logout(
+    @Args('input') logoutInput: LogoutInput,
+    @Context() ctx: IContext,
+  ): Promise<LogoutOutput> {
+    return this.userService.logout(logoutInput, ctx)
   }
 
   @Query((returns) => GetUserOutput)

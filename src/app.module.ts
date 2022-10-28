@@ -37,7 +37,7 @@ import { HealthModule } from './health/health.module'
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       logging: process.env.NODE_ENV === 'development',
-      synchronize: process.env.NODE_ENV !== 'production',
+      synchronize: true,
       entities: [User, Work, Photo],
     }),
 
@@ -48,8 +48,10 @@ import { HealthModule } from './health/health.module'
       bodyParserConfig: false,
       cache: 'bounded',
       persistedQueries: false,
+      csrfPrevention: true,
       cors: {
-        origin: 'https://signpod.app',
+        origin:
+          process.env.NODE_ENV === 'development' ? true : 'https://signpod.app',
         credentials: true,
       },
     }),
@@ -57,7 +59,8 @@ import { HealthModule } from './health/health.module'
     AuthModule,
     WorkModule,
     JwtModule.forRoot({
-      privateKey: process.env.PRIVATE_KEY,
+      accessTokenPrivateKey: process.env.ACCESS_TOKEN_PRIVATE_KEY,
+      refreshTokenPrivateKey: process.env.REFRESH_TOKEN_PRIVATE_KEY,
     }),
     StorageModule,
     PhotoModule,
