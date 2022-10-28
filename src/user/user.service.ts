@@ -150,34 +150,34 @@ export class UserService {
   }
 
   async me(meInput: MeInput): Promise<MeOutput> {
-    // try {
-    //   const { token } = meInput
-    //   const decoded = this.jwtService.signAccessVerify(token)
-    //   if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-    //     const user = await this.users.findOne({ where: { id: decoded['id'] } })
-    //     if (!user) {
-    //       return {
-    //         ok: false,
-    //         error: '권한이 없습니다.',
-    //       }
-    //     }
-    //     return {
-    //       ok: true,
-    //       user,
-    //     }
-    //   } else {
-    //     return {
-    //       ok: false,
-    //       error: '유효하지 않은 토큰',
-    //     }
-    //   }
-    // } catch (error) {
-    //   console.error(error)
-    //   return {
-    //     ok: false,
-    //     error: 'GetMe Service Internal Error',
-    //   }
-    // }
+    try {
+      const { token } = meInput
+      const decoded = this.jwtService.verifyAccessToken(token)
+      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+        const user = await this.users.findOne({ where: { id: decoded['id'] } })
+        if (!user) {
+          return {
+            ok: false,
+            error: '권한이 없습니다.',
+          }
+        }
+        return {
+          ok: true,
+          user,
+        }
+      } else {
+        return {
+          ok: false,
+          error: '유효하지 않은 토큰',
+        }
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        ok: false,
+        error: 'GetMe Service Internal Error',
+      }
+    }
     return {
       ok: false,
       error: '이거 지워야 댐',

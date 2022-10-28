@@ -17,12 +17,12 @@ export class JwtService {
   ) {}
   signAccessToken(userId: number): string {
     return jwt.sign({ id: userId }, this.options.accessTokenPrivateKey, {
-      expiresIn: '5m',
+      expiresIn: '1h',
     })
   }
   signRefreshToken(userId: number): string {
     return jwt.sign({ id: userId }, this.options.refreshTokenPrivateKey, {
-      expiresIn: '6h',
+      expiresIn: '24h',
     })
   }
   verifyAccessToken(token: string): string | jwt.JwtPayload | null {

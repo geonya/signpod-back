@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
-
 import { FileUpload } from 'graphql-upload-minimal'
+
 import { Repository } from 'typeorm'
-import { checkFileSize } from '../libs/files/check-filesize'
 import { generateUniqueFilename } from '../libs/files/generate-unique-filename'
 import { Photo } from '../photo/entities/photo.entity'
 import { StorageService } from '../storage/storage.service'
@@ -29,9 +28,10 @@ export class WorkService {
     files: Promise<FileUpload>[],
   ): Promise<CreateWorkOutput> {
     try {
+      console.log('hi')
+      console.log(files)
       const work = this.works.create({ title, description, category })
       work.creator = creator
-
       const fileUrlList: string[] = []
       if (files.length > 0) {
         files.map(async (file) => {

@@ -48,7 +48,7 @@ import { HealthModule } from './health/health.module'
       bodyParserConfig: false,
       cache: 'bounded',
       persistedQueries: false,
-      csrfPrevention: true,
+      csrfPrevention: process.env.NODE_ENV !== 'development',
       cors: {
         origin:
           process.env.NODE_ENV === 'development' ? true : 'https://signpod.app',

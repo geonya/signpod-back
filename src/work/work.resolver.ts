@@ -1,5 +1,6 @@
 import { Args, Mutation, Resolver } from '@nestjs/graphql'
-import { type FileUpload, GraphQLUpload } from 'graphql-upload-minimal'
+import { FileUpload, GraphQLUpload } from 'graphql-upload-minimal'
+
 import { AuthUser } from '../auth/auth-user.decorator'
 import { User } from '../user/entities/user.entity'
 import { CreateWorkInput, CreateWorkOutput } from './dtos/create-work.dto'

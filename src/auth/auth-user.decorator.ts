@@ -6,7 +6,6 @@ export const AuthUser = createParamDecorator(
   (data: unknown, context: ExecutionContext) => {
     const gqlContext = GqlExecutionContext.create(context).getContext()
     const { req } = gqlContext
-    const user: User = req['user']
-    return user
+    return req.user
   },
 )

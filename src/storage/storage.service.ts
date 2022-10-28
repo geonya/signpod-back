@@ -29,6 +29,7 @@ export class StorageService {
     createReadStream: FileUpload['createReadStream'],
     filename: string,
   ) {
+    console.log('upload', filename)
     return new Promise((resolves, rejects) =>
       createReadStream()
         .pipe(

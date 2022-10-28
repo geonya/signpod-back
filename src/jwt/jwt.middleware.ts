@@ -23,11 +23,12 @@ export class JwtMiddleware implements NestMiddleware {
     const refreshToken = this.jwtService.verifyRefreshToken(
       req.cookies[REFRESH_TOKEN],
     )
-    console.log(req)
+
     // const [, token] = req.headers.authorization.split(' ')
 
     if (accessToken === null) {
       if (refreshToken === null) {
+        req['user'] = null
         next()
       } else {
         const userId = refreshToken['id']
@@ -35,6 +36,7 @@ export class JwtMiddleware implements NestMiddleware {
         const newAccessToken = this.jwtService.signAccessToken(user.id)
         res.cookie(ACCESS_TOKEN, newAccessToken)
         req.cookies[ACCESS_TOKEN] = newAccessToken
+        req['user'] = user
         next()
       }
     } else {
@@ -46,8 +48,12 @@ export class JwtMiddleware implements NestMiddleware {
         await this.userService.updateRefreshToken(userId, newRefreshToken)
         res.cookie(REFRESH_TOKEN, newRefreshToken)
         req.cookies[REFRESH_TOKEN] = newRefreshToken
+        req['user'] = user
         next()
       } else {
+        const userId = accessToken['id']
+        const user = await this.userService.findUserById(userId)
+        req['user'] = user
         next()
       }
     }
