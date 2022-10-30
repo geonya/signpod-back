@@ -40,6 +40,7 @@ export class JwtService {
   ): Promise<string | jwt.JwtPayload | null> {
     try {
       const decoded = jwt.verify(token, this.options.refreshTokenPrivateKey)
+      if (!decoded) return null
       if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
         const user = await this.users.findOneBy(decoded.id)
         if (user) {

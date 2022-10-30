@@ -20,6 +20,7 @@ export class JwtMiddleware implements NestMiddleware {
     const accessToken = this.jwtService.verifyAccessToken(
       req.cookies[ACCESS_TOKEN],
     )
+    console.log('accessToken', accessToken)
     const refreshToken = this.jwtService.verifyRefreshToken(
       req.cookies[REFRESH_TOKEN],
     )
