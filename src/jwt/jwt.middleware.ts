@@ -2,12 +2,7 @@ import { Injectable, NestMiddleware } from '@nestjs/common'
 import { NextFunction, Request, Response } from 'express'
 import { UserService } from '../user/user.service'
 import { JwtService } from './jwt.service'
-import { ExtractJwt } from 'passport-jwt'
-import {
-  ACCESS_TOKEN,
-  JWT_TOKEN,
-  REFRESH_TOKEN,
-} from '../common/common.constants'
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../common/common.constants'
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
@@ -20,7 +15,6 @@ export class JwtMiddleware implements NestMiddleware {
     const accessToken = this.jwtService.verifyAccessToken(
       req.cookies[ACCESS_TOKEN],
     )
-    console.log('accessToken', accessToken)
     const refreshToken = this.jwtService.verifyRefreshToken(
       req.cookies[REFRESH_TOKEN],
     )
@@ -29,14 +23,18 @@ export class JwtMiddleware implements NestMiddleware {
 
     if (accessToken === null) {
       if (refreshToken === null) {
+        console.log('토큰 모두 만료')
+        res.clearCookie(ACCESS_TOKEN)
+        res.clearCookie(REFRESH_TOKEN)
         req['user'] = null
         next()
       } else {
         const userId = refreshToken['id']
         const user = await this.userService.findUserById(userId)
-        const newAccessToken = this.jwtService.signAccessToken(user.id)
-        res.cookie(ACCESS_TOKEN, newAccessToken)
-        req.cookies[ACCESS_TOKEN] = newAccessToken
+        const { token } = await this.userService.updateAccessToken({ userId })
+        res.clearCookie(ACCESS_TOKEN)
+        res.cookie(ACCESS_TOKEN, token)
+        // req.cookies[ACCESS_TOKEN] = newAccessToken
         req['user'] = user
         next()
       }
@@ -44,11 +42,10 @@ export class JwtMiddleware implements NestMiddleware {
       if (refreshToken === null) {
         const userId = accessToken['id']
         const user = await this.userService.findUserById(userId)
-        const newRefreshToken = this.jwtService.signRefreshToken(user.id)
-        user.refreshToken = newRefreshToken
-        await this.userService.updateRefreshToken(userId, newRefreshToken)
-        res.cookie(REFRESH_TOKEN, newRefreshToken)
-        req.cookies[REFRESH_TOKEN] = newRefreshToken
+        const { token } = await this.userService.updateRefreshToken({ userId })
+        res.clearCookie(REFRESH_TOKEN)
+        res.cookie(REFRESH_TOKEN, token)
+        // req.cookies[REFRESH_TOKEN] = token
         req['user'] = user
         next()
       } else {
@@ -58,23 +55,5 @@ export class JwtMiddleware implements NestMiddleware {
         next()
       }
     }
-
-    // if (refreshToken) {
-    //   try {
-    //     const decoded = this.jwtService.signRefreshVerify(refreshToken)
-    //     if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-    //       const user = await this.userService.findUserById(decoded['id'])
-    //       if (user) {
-    //         req['user'] = user
-    //       }
-    //     }
-    //   } catch (error) {
-    //     console.error(error)
-    //     if (error.name === 'TokenExpiredError') {
-    //       console.log('❌ Refresh Token Expired! 🗑')
-    //       res.clearCookie(JWT_TOKEN)
-    //     }
-    //   }
-    // }
   }
 }

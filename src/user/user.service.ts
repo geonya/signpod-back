@@ -13,13 +13,17 @@ import { User } from './entities/user.entity'
 import * as bcrypt from 'bcryptjs'
 import { LogoutInput, LogoutOutput } from './dtos/logout.dto'
 import { IContext } from './user.interfaces'
-import { MeInput, MeOutput } from './dtos/me.dto'
+import { MeOutput } from './dtos/me.dto'
 import {
   ACCESS_TOKEN,
   JWT_TOKEN,
   REFRESH_TOKEN,
 } from '../common/common.constants'
 import { Response, Request } from 'express'
+import { cookieOptions } from '../common/common.config'
+import { number } from 'joi'
+import { RefreshTokenInput, RefreshTokenOutput } from './dtos/refresh-token.dto'
+import { AccessTokenInput, AccessTokenOutput } from './dtos/access-token.dto'
 
 @Injectable()
 export class UserService {
@@ -82,17 +86,8 @@ export class UserService {
         }
       }
 
-      // cookie
       const accessToken = this.jwtService.signAccessToken(user.id)
       const refreshToken = this.jwtService.signRefreshToken(user.id)
-
-      const cookieOptions = {
-        domain:
-          process.env.NODE_ENV === 'production' ? '.signpod.app' : 'localhost',
-        secure: process.env.NODE_ENV === 'production' ? true : false,
-        path: '/',
-        httpOnly: true,
-      }
 
       res.cookie(ACCESS_TOKEN, accessToken, cookieOptions)
       res.cookie(REFRESH_TOKEN, refreshToken, cookieOptions)
@@ -113,10 +108,58 @@ export class UserService {
     }
   }
 
-  async updateRefreshToken(userId: number, token: string): Promise<void> {
-    const user = await this.users.findOne({ where: { id: userId } })
-    user.refreshToken = token
-    await this.users.save(user)
+  async updateAccessToken({
+    userId,
+  }: AccessTokenInput): Promise<AccessTokenOutput> {
+    try {
+      const token = this.jwtService.signAccessToken(userId)
+      if (token) {
+        return {
+          ok: true,
+          token,
+        }
+      } else {
+        return {
+          ok: false,
+          error: 'Token 이 만들어지지 않음',
+        }
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        ok: false,
+        error: 'updateAccessToken Internal Error',
+      }
+    }
+  }
+
+  async updateRefreshToken({
+    userId,
+  }: RefreshTokenInput): Promise<RefreshTokenOutput> {
+    console.log('refresh token')
+    try {
+      const user = await this.users.findOne({ where: { id: userId } })
+      const token = this.jwtService.signRefreshToken(userId)
+      if (token) {
+        user.refreshToken = token
+        await this.users.save(user)
+        return {
+          ok: true,
+          token,
+        }
+      } else {
+        return {
+          ok: false,
+          error: 'Token 이 만들어지지 않음',
+        }
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        ok: false,
+        error: 'updateRefreshToken Internal Error',
+      }
+    }
   }
 
   async logout({ id }: LogoutInput, { res }: IContext): Promise<LogoutOutput> {
@@ -149,38 +192,18 @@ export class UserService {
     }
   }
 
-  async me(meInput: MeInput): Promise<MeOutput> {
+  async me(user: User): Promise<MeOutput> {
     try {
-      const { token } = meInput
-      const decoded = this.jwtService.verifyAccessToken(token)
-      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
-        const user = await this.users.findOne({ where: { id: decoded['id'] } })
-        if (!user) {
-          return {
-            ok: false,
-            error: '권한이 없습니다.',
-          }
-        }
-        return {
-          ok: true,
-          user,
-        }
-      } else {
-        return {
-          ok: false,
-          error: '유효하지 않은 토큰',
-        }
+      return {
+        ok: true,
+        user,
       }
     } catch (error) {
       console.error(error)
       return {
         ok: false,
-        error: 'GetMe Service Internal Error',
+        error: 'Me Service Internal Error',
       }
-    }
-    return {
-      ok: false,
-      error: '이거 지워야 댐',
     }
   }
 

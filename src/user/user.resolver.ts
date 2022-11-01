@@ -9,7 +9,8 @@ import { EditAccountInput, EditAccountOutput } from './dtos/edit-account.dto'
 import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
 import { LogoutInput, LogoutOutput } from './dtos/logout.dto'
-import { MeInput, MeOutput } from './dtos/me.dto'
+import { MeOutput } from './dtos/me.dto'
+import { RefreshTokenInput, RefreshTokenOutput } from './dtos/refresh-token.dto'
 import { User } from './entities/user.entity'
 import { IContext } from './user.interfaces'
 import { UserService } from './user.service'
@@ -55,8 +56,8 @@ export class UserResolver {
     return this.userService.getUser(getUserInput)
   }
 
-  @Query((returns) => GetUserOutput)
-  me(@Args('input') meInput: MeInput): Promise<MeOutput> {
-    return this.userService.me(meInput)
+  @Query((returns) => MeOutput)
+  me(@AuthUser() user: User): Promise<MeOutput> {
+    return this.userService.me(user)
   }
 }

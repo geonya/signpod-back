@@ -1,11 +1,9 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql'
+import { User } from '../entities/user.entity'
 import { GetUserOutput } from './get-user.dto'
 
-@InputType('MeInput')
-export class MeInput {
-  @Field((type) => String, { nullable: true })
-  token?: string
-}
-
 @ObjectType()
-export class MeOutput extends GetUserOutput {}
+export class MeOutput extends GetUserOutput {
+  @Field((type) => User, { nullable: true })
+  user?: User
+}

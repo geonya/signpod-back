@@ -41,7 +41,7 @@ export class JwtService {
     try {
       const decoded = jwt.verify(token, this.options.refreshTokenPrivateKey)
       if (!decoded) return null
-      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+      if (typeof decoded === 'object') {
         const user = await this.users.findOneBy(decoded.id)
         if (user) {
           if (user.refreshToken === token) {

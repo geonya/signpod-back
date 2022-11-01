@@ -27,6 +27,10 @@ export class User extends CoreEntity {
   avatar?: string
 
   @Column({ nullable: true })
+  @Field((type) => String, { nullable: true })
+  company?: string
+
+  @Column({ nullable: true })
   @Exclude()
   @Field((type) => String, { nullable: true })
   refreshToken?: string
