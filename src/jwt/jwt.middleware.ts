@@ -32,7 +32,7 @@ export class JwtMiddleware implements NestMiddleware {
         console.log('Access Token 만 만료')
         console.log(refreshToken)
         const userId = refreshToken['id']
-        const user = await this.userService.findUserById(userId)
+        const { user } = await this.userService.findUserById(userId)
         const { token } = await this.userService.updateAccessToken({ userId })
         res.clearCookie(ACCESS_TOKEN)
         res.cookie(ACCESS_TOKEN, token)
@@ -44,7 +44,7 @@ export class JwtMiddleware implements NestMiddleware {
       if (refreshToken === null) {
         console.log('Refresh Token 만 만료')
         const userId = accessToken['id']
-        const user = await this.userService.findUserById(userId)
+        const { user } = await this.userService.findUserById(userId)
         const { token } = await this.userService.updateRefreshToken({ userId })
         res.clearCookie(REFRESH_TOKEN)
         res.cookie(REFRESH_TOKEN, token)
@@ -54,7 +54,7 @@ export class JwtMiddleware implements NestMiddleware {
       } else {
         console.log('토큰 모두 살아 있음')
         const userId = accessToken['id']
-        const user = await this.userService.findUserById(userId)
+        const { user } = await this.userService.findUserById(userId)
         req['user'] = user
         next()
       }

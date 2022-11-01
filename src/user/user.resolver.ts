@@ -6,7 +6,10 @@ import {
   CreateAccountOutput,
 } from './dtos/create-account.dto'
 import { EditAccountInput, EditAccountOutput } from './dtos/edit-account.dto'
-import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
+import {
+  FindUserByIdInput,
+  FindUserByIdOutput,
+} from './dtos/find-user-by-id.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
 import { LogoutOutput } from './dtos/logout.dto'
 import { MeOutput } from './dtos/me.dto'
@@ -47,9 +50,11 @@ export class UserResolver {
     return this.userService.logout(ctx)
   }
 
-  @Query((returns) => GetUserOutput)
-  getUser(@Args('input') getUserInput: GetUserInput): Promise<GetUserOutput> {
-    return this.userService.getUser(getUserInput)
+  @Query((returns) => FindUserByIdOutput)
+  findUserById(
+    @Args('input') findUserByIdInput: FindUserByIdInput,
+  ): Promise<FindUserByIdOutput> {
+    return this.userService.findUserById(findUserByIdInput)
   }
 
   @Query((returns) => MeOutput)

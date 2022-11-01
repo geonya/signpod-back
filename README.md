@@ -14,5 +14,7 @@ _220927_
 - [x] Work 모듈 만들기
 - [x] Work resolver / service 만들기
 - [x] Work Photos Upload in GCP Storage
-  - [ ] return file url and save in work object
-- [ ] Auth : Work Creator
+  - [x] return file url and save in work object
+- [x] AuthUser : Work Creator
+- [x] Token : Access Token & Refresh Token
+- [ ] Get User : Profile Update

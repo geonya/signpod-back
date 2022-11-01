@@ -7,7 +7,10 @@ import {
   CreateAccountOutput,
 } from './dtos/create-account.dto'
 import { EditAccountInput, EditAccountOutput } from './dtos/edit-account.dto'
-import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
+import {
+  FindUserByIdInput,
+  FindUserByIdOutput,
+} from './dtos/find-user-by-id.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
 import { User } from './entities/user.entity'
 import * as bcrypt from 'bcryptjs'
@@ -165,17 +168,6 @@ export class UserService {
     }
   }
 
-  async getUser(getUserInput: GetUserInput): Promise<GetUserOutput> {
-    try {
-    } catch (error) {
-      console.error(error)
-      return {
-        ok: false,
-        error: 'GetUser Service Internal Error',
-      }
-    }
-  }
-
   async me(user: User): Promise<MeOutput> {
     try {
       return {
@@ -233,11 +225,19 @@ export class UserService {
     }
   }
 
-  async findUserById(id: number): Promise<User> {
+  async findUserById({ id }: FindUserByIdInput): Promise<FindUserByIdOutput> {
     try {
-      return this.users.findOne({ where: { id } })
+      const user = await this.users.findOne({ where: { id } })
+      return {
+        ok: true,
+        user,
+      }
     } catch (error) {
-      return null
+      console.error(error)
+      return {
+        ok: false,
+        error: 'findUserById 내부 에러',
+      }
     }
   }
 }
