@@ -10,7 +10,4 @@ export class CreateAccountInput extends PickType(User, [
 ]) {}
 
 @ObjectType()
-export class CreateAccountOutput extends CoreOutput {
-  @Field((type) => String, { nullable: true })
-  token?: string
-}
+export class CreateAccountOutput extends CoreOutput {}

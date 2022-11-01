@@ -8,9 +8,8 @@ import {
 import { EditAccountInput, EditAccountOutput } from './dtos/edit-account.dto'
 import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
-import { LogoutInput, LogoutOutput } from './dtos/logout.dto'
+import { LogoutOutput } from './dtos/logout.dto'
 import { MeOutput } from './dtos/me.dto'
-import { RefreshTokenInput, RefreshTokenOutput } from './dtos/refresh-token.dto'
 import { User } from './entities/user.entity'
 import { IContext } from './user.interfaces'
 import { UserService } from './user.service'
@@ -44,11 +43,8 @@ export class UserResolver {
   }
 
   @Mutation((returns) => LogoutOutput)
-  logout(
-    @Args('input') logoutInput: LogoutInput,
-    @Context() ctx: IContext,
-  ): Promise<LogoutOutput> {
-    return this.userService.logout(logoutInput, ctx)
+  logout(@Context() ctx: IContext): Promise<LogoutOutput> {
+    return this.userService.logout(ctx)
   }
 
   @Query((returns) => GetUserOutput)

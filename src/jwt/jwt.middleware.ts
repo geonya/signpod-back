@@ -12,10 +12,10 @@ export class JwtMiddleware implements NestMiddleware {
   ) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
-    const accessToken = this.jwtService.verifyAccessToken(
+    const accessToken = await this.jwtService.verifyAccessToken(
       req.cookies[ACCESS_TOKEN],
     )
-    const refreshToken = this.jwtService.verifyRefreshToken(
+    const refreshToken = await this.jwtService.verifyRefreshToken(
       req.cookies[REFRESH_TOKEN],
     )
 
@@ -29,6 +29,8 @@ export class JwtMiddleware implements NestMiddleware {
         req['user'] = null
         next()
       } else {
+        console.log('Access Token 만 만료')
+        console.log(refreshToken)
         const userId = refreshToken['id']
         const user = await this.userService.findUserById(userId)
         const { token } = await this.userService.updateAccessToken({ userId })
@@ -40,6 +42,7 @@ export class JwtMiddleware implements NestMiddleware {
       }
     } else {
       if (refreshToken === null) {
+        console.log('Refresh Token 만 만료')
         const userId = accessToken['id']
         const user = await this.userService.findUserById(userId)
         const { token } = await this.userService.updateRefreshToken({ userId })
@@ -49,6 +52,7 @@ export class JwtMiddleware implements NestMiddleware {
         req['user'] = user
         next()
       } else {
+        console.log('토큰 모두 살아 있음')
         const userId = accessToken['id']
         const user = await this.userService.findUserById(userId)
         req['user'] = user

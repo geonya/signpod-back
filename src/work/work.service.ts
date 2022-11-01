@@ -28,8 +28,6 @@ export class WorkService {
     files: Promise<FileUpload>[],
   ): Promise<CreateWorkOutput> {
     try {
-      console.log('hi')
-      console.log(files)
       const work = this.works.create({ title, description, category })
       work.creator = creator
       const fileUrlList: string[] = []

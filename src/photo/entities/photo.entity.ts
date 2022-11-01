@@ -11,9 +11,9 @@ export class Photo extends CoreEntity {
   @Field((type) => String)
   url: string
 
-  @Column()
+  @Column({ nullable: true })
   @Field((type) => String, { nullable: true })
-  alt: string
+  alt?: string
 
   @ManyToOne((type) => Work, (work) => work.photos, {
     nullable: true,

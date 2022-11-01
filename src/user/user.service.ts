@@ -11,17 +11,12 @@ import { GetUserInput, GetUserOutput } from './dtos/get-user.dto'
 import { LoginInput, LoginOutput } from './dtos/login.dto'
 import { User } from './entities/user.entity'
 import * as bcrypt from 'bcryptjs'
-import { LogoutInput, LogoutOutput } from './dtos/logout.dto'
+import { LogoutOutput } from './dtos/logout.dto'
 import { IContext } from './user.interfaces'
 import { MeOutput } from './dtos/me.dto'
-import {
-  ACCESS_TOKEN,
-  JWT_TOKEN,
-  REFRESH_TOKEN,
-} from '../common/common.constants'
+import { ACCESS_TOKEN, REFRESH_TOKEN } from '../common/common.constants'
 import { Response, Request } from 'express'
 import { cookieOptions } from '../common/common.config'
-import { number } from 'joi'
 import { RefreshTokenInput, RefreshTokenOutput } from './dtos/refresh-token.dto'
 import { AccessTokenInput, AccessTokenOutput } from './dtos/access-token.dto'
 
@@ -46,17 +41,9 @@ export class UserService {
       }
       const user = this.users.create({ name, password, email })
       await this.users.save(user)
-      const { token } = await this.login({ email, password }, ctx)
-      if (token) {
-        return {
-          ok: true,
-          token,
-        }
-      } else {
-        return {
-          ok: false,
-          error: '토큰 오류',
-        }
+      await this.login({ email, password }, ctx)
+      return {
+        ok: true,
       }
     } catch (error) {
       console.error(error)
@@ -97,7 +84,6 @@ export class UserService {
 
       return {
         ok: true,
-        token: accessToken,
       }
     } catch (error) {
       console.error(error)
@@ -162,13 +148,11 @@ export class UserService {
     }
   }
 
-  async logout({ id }: LogoutInput, { res }: IContext): Promise<LogoutOutput> {
+  async logout({ res }: IContext): Promise<LogoutOutput> {
     try {
+      console.log('logout')
       res.clearCookie(ACCESS_TOKEN)
       res.clearCookie(REFRESH_TOKEN)
-      const user = await this.users.findOne({ where: { id } })
-      user.refreshToken = null
-      await this.users.save(user)
       return {
         ok: true,
       }
