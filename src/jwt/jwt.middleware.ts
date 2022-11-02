@@ -2,7 +2,8 @@ import { Injectable, NestMiddleware } from '@nestjs/common'
 import { NextFunction, Request, Response } from 'express'
 import { UserService } from '../user/user.service'
 import { JwtService } from './jwt.service'
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../common/common.constants'
+import { ACCESS_TOKEN, DOMAIN, REFRESH_TOKEN } from '../common/common.constants'
+import { cookieOptions } from '../common/common.config'
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
@@ -24,20 +25,26 @@ export class JwtMiddleware implements NestMiddleware {
     if (accessToken === null) {
       if (refreshToken === null) {
         console.log('토큰 모두 만료')
-        res.clearCookie(ACCESS_TOKEN)
-        res.clearCookie(REFRESH_TOKEN)
+        res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
+        res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
         req['user'] = null
         next()
       } else {
         console.log('Access Token 만 만료')
-        console.log(refreshToken)
         const userId = refreshToken['id']
         const { user } = await this.userService.findUserById(userId)
-        const { token } = await this.userService.updateAccessToken({ userId })
-        res.clearCookie(ACCESS_TOKEN)
-        res.cookie(ACCESS_TOKEN, token)
-        // req.cookies[ACCESS_TOKEN] = newAccessToken
-        req['user'] = user
+        if (refreshToken === user.refreshToken) {
+          console.log('Access Token 갱신')
+          const { token } = await this.userService.updateAccessToken({ userId })
+          res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
+          res.cookie(ACCESS_TOKEN, token, cookieOptions)
+          req['user'] = user
+        } else {
+          console.log('Refresh Token 이 유효하지 않아 초기화')
+          res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
+          res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
+          req['user'] = null
+        }
         next()
       }
     } else {
@@ -46,9 +53,8 @@ export class JwtMiddleware implements NestMiddleware {
         const userId = accessToken['id']
         const { user } = await this.userService.findUserById(userId)
         const { token } = await this.userService.updateRefreshToken({ userId })
-        res.clearCookie(REFRESH_TOKEN)
-        res.cookie(REFRESH_TOKEN, token)
-        // req.cookies[REFRESH_TOKEN] = token
+        res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
+        res.cookie(REFRESH_TOKEN, token, cookieOptions)
         req['user'] = user
         next()
       } else {

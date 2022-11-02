@@ -17,7 +17,7 @@ import * as bcrypt from 'bcryptjs'
 import { LogoutOutput } from './dtos/logout.dto'
 import { IContext } from './user.interfaces'
 import { MeOutput } from './dtos/me.dto'
-import { ACCESS_TOKEN, REFRESH_TOKEN } from '../common/common.constants'
+import { ACCESS_TOKEN, DOMAIN, REFRESH_TOKEN } from '../common/common.constants'
 import { Response, Request } from 'express'
 import { cookieOptions } from '../common/common.config'
 import { RefreshTokenInput, RefreshTokenOutput } from './dtos/refresh-token.dto'
@@ -157,9 +157,8 @@ export class UserService {
 
   async logout({ res }: IContext): Promise<LogoutOutput> {
     try {
-      console.log('logout')
-      res.clearCookie(ACCESS_TOKEN)
-      res.clearCookie(REFRESH_TOKEN)
+      res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
+      res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
       return {
         ok: true,
       }
