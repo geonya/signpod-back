@@ -1,10 +1,9 @@
-import { forwardRef, Inject, Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import * as jwt from 'jsonwebtoken'
 import { Repository } from 'typeorm'
 import { CONFIG_OPTIONS } from '../common/common.constants'
 import { User } from '../user/entities/user.entity'
-import { UserService } from '../user/user.service'
 import { JwtModuleOptions } from './jwt.interface'
 
 @Injectable()
@@ -17,12 +16,12 @@ export class JwtService {
   ) {}
   signAccessToken(userId: number): string {
     return jwt.sign({ id: userId }, this.options.accessTokenPrivateKey, {
-      expiresIn: '1h',
+      expiresIn: '1d',
     })
   }
   signRefreshToken(userId: number): string {
     return jwt.sign({ id: userId }, this.options.refreshTokenPrivateKey, {
-      expiresIn: '24h',
+      expiresIn: '7d',
     })
   }
   verifyAccessToken(token: string): string | jwt.JwtPayload | null {

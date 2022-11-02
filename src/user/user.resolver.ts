@@ -1,5 +1,6 @@
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { Request, Response } from 'express'
+import { FileUpload, GraphQLUpload } from 'graphql-upload-minimal'
 import { AuthUser } from '../auth/auth-user.decorator'
 import {
   CreateAccountInput,
@@ -41,8 +42,10 @@ export class UserResolver {
   editAccount(
     @AuthUser() user: User,
     @Args('input') editAccountInput: EditAccountInput,
+    @Args('file', { type: () => GraphQLUpload, nullable: true })
+    file: FileUpload,
   ): Promise<EditAccountOutput> {
-    return this.userService.editAccount(user, editAccountInput)
+    return this.userService.editAccount(user, editAccountInput, file)
   }
 
   @Mutation((returns) => LogoutOutput)

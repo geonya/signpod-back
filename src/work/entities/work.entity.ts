@@ -27,7 +27,10 @@ export class Work extends CoreEntity {
   @Length(2, 100)
   category?: string
 
-  @ManyToOne((type) => User, (user) => user.works, { onDelete: 'SET NULL' })
+  @ManyToOne((type) => User, (user) => user.works, {
+    onDelete: 'SET NULL',
+    eager: true,
+  })
   @Field((type) => User)
   creator: User
 

@@ -29,7 +29,6 @@ export class StorageService {
     createReadStream: FileUpload['createReadStream'],
     filename: string,
   ) {
-    console.log('upload', filename)
     return new Promise((resolves, rejects) =>
       createReadStream()
         .pipe(
@@ -41,7 +40,7 @@ export class StorageService {
         .on('error', (err: any) => rejects(err))
         .on('finish', () =>
           resolves(
-            `https://storage.cloud.google.com/${this.config.bucketId}/${filename}`,
+            `https://storage.googleapis.com/${this.config.bucketId}/${filename}`,
           ),
         ),
     )

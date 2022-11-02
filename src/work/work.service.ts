@@ -8,6 +8,7 @@ import { Photo } from '../photo/entities/photo.entity'
 import { StorageService } from '../storage/storage.service'
 import { User } from '../user/entities/user.entity'
 import { CreateWorkInput, CreateWorkOutput } from './dtos/create-work.dto'
+import { GetWorksOutput } from './dtos/get-works.dto'
 import { Work } from './entities/work.entity'
 
 @Injectable()
@@ -55,6 +56,23 @@ export class WorkService {
       console.error(error)
       return {
         ok: false,
+      }
+    }
+  }
+
+  async getWorks(): Promise<GetWorksOutput> {
+    try {
+      const works = await this.works.find()
+      console.log(works)
+      return {
+        ok: true,
+        works,
+      }
+    } catch (error) {
+      console.error(error)
+      return {
+        ok: false,
+        error: 'GetWorks Internal Error',
       }
     }
   }

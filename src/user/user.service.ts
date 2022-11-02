@@ -22,6 +22,9 @@ import { Response, Request } from 'express'
 import { cookieOptions } from '../common/common.config'
 import { RefreshTokenInput, RefreshTokenOutput } from './dtos/refresh-token.dto'
 import { AccessTokenInput, AccessTokenOutput } from './dtos/access-token.dto'
+import { FileUpload } from 'graphql-upload-minimal'
+import { generateUniqueFilename } from '../libs/files/generate-unique-filename'
+import { StorageService } from '../storage/storage.service'
 
 @Injectable()
 export class UserService {
@@ -29,6 +32,7 @@ export class UserService {
     @InjectRepository(User)
     private readonly users: Repository<User>,
     private readonly jwtService: JwtService,
+    private readonly storageService: StorageService,
   ) {}
   async createAccount(
     { name, password, email }: CreateAccountInput,
@@ -185,13 +189,19 @@ export class UserService {
 
   async editAccount(
     user: User,
-    { id, name, email, password }: EditAccountInput,
+    { name, email, password, company }: EditAccountInput,
+    file: FileUpload,
   ): Promise<EditAccountOutput> {
     try {
-      if (user.id !== id) {
-        return {
-          ok: false,
-          error: '권한이 없습니다.',
+      if (file) {
+        const { createReadStream, filename } = file
+        const uniqueFilename = generateUniqueFilename(filename)
+        const fileUrl = await this.storageService.upload(
+          createReadStream,
+          'avatars/' + uniqueFilename,
+        )
+        if (typeof fileUrl === 'string') {
+          user.avatar = fileUrl
         }
       }
       if (name) {
@@ -211,6 +221,10 @@ export class UserService {
         const hashedPassword = await bcrypt.hash(password, 10)
         user.password = hashedPassword
       }
+      if (company) {
+        user.company = company
+      }
+
       await this.users.save(user)
 
       return {

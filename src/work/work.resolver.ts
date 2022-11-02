@@ -1,9 +1,10 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql'
+import { Args, Mutation, Query, Resolver } from '@nestjs/graphql'
 import { FileUpload, GraphQLUpload } from 'graphql-upload-minimal'
 
 import { AuthUser } from '../auth/auth-user.decorator'
 import { User } from '../user/entities/user.entity'
 import { CreateWorkInput, CreateWorkOutput } from './dtos/create-work.dto'
+import { GetWorksOutput } from './dtos/get-works.dto'
 import { Work } from './entities/work.entity'
 import { WorkService } from './work.service'
 
@@ -18,5 +19,10 @@ export class WorkResolver {
     files: Promise<FileUpload>[],
   ): Promise<CreateWorkOutput> {
     return this.workService.createWork(creator, createWorkInput, files)
+  }
+
+  @Query((returns) => GetWorksOutput)
+  async getWorks(): Promise<GetWorksOutput> {
+    return this.workService.getWorks()
   }
 }
