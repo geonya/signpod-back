@@ -80,8 +80,8 @@ export class UserService {
         }
       }
 
-      const accessToken = this.jwtService.signAccessToken(user.id)
-      const refreshToken = this.jwtService.signRefreshToken(user.id)
+      const accessToken = await this.jwtService.signAccessToken(user.id)
+      const refreshToken = await this.jwtService.signRefreshToken(user.id)
 
       res.cookie(ACCESS_TOKEN, accessToken, cookieOptions)
       res.cookie(REFRESH_TOKEN, refreshToken, cookieOptions)
@@ -129,7 +129,7 @@ export class UserService {
   async updateRefreshToken({
     userId,
   }: RefreshTokenInput): Promise<RefreshTokenOutput> {
-    console.log('refresh token')
+    console.log('update refresh token')
     try {
       const user = await this.users.findOne({ where: { id: userId } })
       const token = this.jwtService.signRefreshToken(userId)
@@ -155,10 +155,15 @@ export class UserService {
     }
   }
 
-  async logout({ res }: IContext): Promise<LogoutOutput> {
+  async logout({ res, req }: IContext): Promise<LogoutOutput> {
     try {
-      res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
-      res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
+      res.clearCookie(ACCESS_TOKEN, {
+        domain: process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+      })
+      res.clearCookie(REFRESH_TOKEN, {
+        domain: process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+      })
+      req['uesr'] = null
       return {
         ok: true,
       }

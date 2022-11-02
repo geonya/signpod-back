@@ -25,24 +25,37 @@ export class JwtMiddleware implements NestMiddleware {
     if (accessToken === null) {
       if (refreshToken === null) {
         console.log('토큰 모두 만료')
-        res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
-        res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
+        res.clearCookie(ACCESS_TOKEN, {
+          domain: process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+        })
+        res.clearCookie(REFRESH_TOKEN, {
+          domain: process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+        })
         req['user'] = null
         next()
       } else {
         console.log('Access Token 만 만료')
         const userId = refreshToken['id']
-        const { user } = await this.userService.findUserById(userId)
+        const { user } = await this.userService.findUserById({ id: userId })
         if (refreshToken === user.refreshToken) {
           console.log('Access Token 갱신')
           const { token } = await this.userService.updateAccessToken({ userId })
-          res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
+          res.clearCookie(ACCESS_TOKEN, {
+            domain:
+              process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+          })
           res.cookie(ACCESS_TOKEN, token, cookieOptions)
           req['user'] = user
         } else {
           console.log('Refresh Token 이 유효하지 않아 초기화')
-          res.clearCookie(ACCESS_TOKEN, { domain: DOMAIN })
-          res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
+          res.clearCookie(ACCESS_TOKEN, {
+            domain:
+              process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+          })
+          res.clearCookie(REFRESH_TOKEN, {
+            domain:
+              process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+          })
           req['user'] = null
         }
         next()
@@ -51,16 +64,22 @@ export class JwtMiddleware implements NestMiddleware {
       if (refreshToken === null) {
         console.log('Refresh Token 만 만료')
         const userId = accessToken['id']
-        const { user } = await this.userService.findUserById(userId)
+        const { user } = await this.userService.findUserById({ id: userId })
         const { token } = await this.userService.updateRefreshToken({ userId })
-        res.clearCookie(REFRESH_TOKEN, { domain: DOMAIN })
+        res.clearCookie(REFRESH_TOKEN, {
+          domain: process.env.NODE_ENV === 'production' ? DOMAIN : 'localhost',
+        })
         res.cookie(REFRESH_TOKEN, token, cookieOptions)
-        req['user'] = user
+        if (user) {
+          req['user'] = user
+        } else {
+          req['user'] = null
+        }
         next()
       } else {
         console.log('토큰 모두 살아 있음')
         const userId = accessToken['id']
-        const { user } = await this.userService.findUserById(userId)
+        const { user } = await this.userService.findUserById({ id: userId })
         req['user'] = user
         next()
       }

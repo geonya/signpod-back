@@ -39,21 +39,11 @@ export class JwtService {
   ): Promise<string | jwt.JwtPayload | null> {
     try {
       const decoded = jwt.verify(token, this.options.refreshTokenPrivateKey)
-      if (!decoded) return null
-      if (typeof decoded === 'object') {
-        const user = await this.users.findOneBy(decoded.id)
-        if (user) {
-          if (user.refreshToken === token) {
-            return decoded
-          } else {
-            return null
-          }
-        } else {
-          return null
-        }
-      } else {
-        return null
-      }
+      if (typeof decoded !== 'object') return null
+      const user = await this.users.findOne({ where: { id: decoded['id'] } })
+      if (!user) return null
+      if (user.refreshToken !== token) return null
+      return decoded
     } catch (error) {
       if (error.name === 'TokenExpiredError') {
         return null
