@@ -30,9 +30,10 @@ export class Work extends CoreEntity {
   @ManyToOne((type) => User, (user) => user.works, {
     onDelete: 'SET NULL',
     eager: true,
+    nullable: true,
   })
-  @Field((type) => User)
-  creator: User
+  @Field((type) => User, { nullable: true })
+  creator?: User
 
   @RelationId((work: Work) => work.creator)
   creatorId: number

@@ -37,7 +37,7 @@ import { HealthModule } from './health/health.module'
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       logging: process.env.NODE_ENV === 'development',
-      synchronize: true,
+      synchronize: true, // DB 수정 계속 반영하기, 개발 모드에서만 사용
       entities: [User, Work, Photo],
     }),
 

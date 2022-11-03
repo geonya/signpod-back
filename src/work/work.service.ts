@@ -63,7 +63,6 @@ export class WorkService {
   async getWorks(): Promise<GetWorksOutput> {
     try {
       const works = await this.works.find()
-      console.log(works)
       return {
         ok: true,
         works,
