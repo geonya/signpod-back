@@ -1,26 +1,26 @@
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo'
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import {
   MiddlewareConsumer,
   Module,
   NestModule,
   RequestMethod,
-} from '@nestjs/common'
-import { ConfigModule } from '@nestjs/config'
-import { GraphQLModule } from '@nestjs/graphql'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { User } from './user/entities/user.entity'
-import { UserModule } from './user/user.module'
-import { JwtModule } from './jwt/jwt.module'
-import { AuthModule } from './auth/auth.module'
-import * as cookieParser from 'cookie-parser'
-import { JwtMiddleware } from './jwt/jwt.middleware'
-import { WorkModule } from './work/work.module'
-import { Work } from './work/entities/work.entity'
-import { StorageModule } from './storage/storage.module'
-import { PhotoModule } from './photo/photo.module'
-import storageConfig from './storage/storage-config'
-import { Photo } from './photo/entities/photo.entity'
-import { HealthModule } from './health/health.module'
+} from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './user/entities/user.entity';
+import { UserModule } from './user/user.module';
+import { JwtModule } from './jwt/jwt.module';
+import { AuthModule } from './auth/auth.module';
+import * as cookieParser from 'cookie-parser';
+import { JwtMiddleware } from './jwt/jwt.middleware';
+import { WorkModule } from './work/work.module';
+import { Work } from './work/entities/work.entity';
+import { StorageModule } from './storage/storage.module';
+import { PhotoModule } from './photo/photo.module';
+import storageConfig from './storage/storage-config';
+import { Photo } from './photo/entities/photo.entity';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -44,16 +44,15 @@ import { HealthModule } from './health/health.module'
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: true,
-      context: ({ req, res }) => ({ req, res }),
-      bodyParserConfig: false,
-      csrfPrevention: process.env.NODE_ENV !== 'development',
-      cors: {
-        origin:
-          process.env.NODE_ENV === 'development' ? true : 'https://signpod.app',
-        credentials: true,
-      },
-      cache: 'bounded',
-      persistedQueries: false,
+      // bodyParserConfig: false,
+      // csrfPrevention: process.env.NODE_ENV !== 'development',
+      // cors: {
+      //   origin:
+      //     process.env.NODE_ENV === 'development' ? true : 'https://signpod.app',
+      //   credentials: true,
+      // },
+      // cache: 'bounded',
+      // persistedQueries: false,
     }),
     UserModule,
     AuthModule,
@@ -72,6 +71,6 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
       .apply(cookieParser(), JwtMiddleware)
-      .forRoutes({ path: '/graphql', method: RequestMethod.POST })
+      .forRoutes({ path: '/graphql', method: RequestMethod.POST });
   }
 }
